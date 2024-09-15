@@ -17,3 +17,33 @@ steps:
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
   displayName: 'Run a multi-line script'
+
+pool:
+ vmImage: 'ubuntu-20.04'
+steps:
+- task: JFrogNpm@1
+ inputs:
+   command: 'pack and publish'
+   artifactoryConnection: 'jordanta-rt'
+   targetRepo: 'shivani-npm-local'
+   workingFolder: 'npm3/'
+   collectBuildInfo: true
+   buildName: '$(Build.DefinitionName)'
+   buildNumber: '$(Build.BuildNumber)'
+- task: JFrogPublishBuildInfo@1
+ inputs:
+   artifactoryConnection: 'jordanta-rt'
+   buildName: '$(Build.DefinitionName)'
+   buildNumber: '$(Build.BuildNumber)'
+- task: JFrogBuildPromotion@1
+ inputs:
+   artifactoryConnection: 'jordanta-rt'
+   buildName: '$(Build.DefinitionName)'
+   buildNumber: '$(Build.BuildNumber)'
+   targetRepo: 'jordanta-npm-local'
+   status: 'Released'
+   comment: 'Released'
+   sourceRepo: 'shivani-npm-local'
+   includeDependencies: false
+   copy: true
+   dryRun: false
